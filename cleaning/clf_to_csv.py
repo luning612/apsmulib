@@ -25,10 +25,11 @@ output_file = os.path.join(working_dir, "cleaned_"+input_file_name+".csv")
 out_csv = csv.writer(open(output_file, 'wb'), quoting=csv.QUOTE_ALL)
 out_csv.writerow(["uip","rmtname","uid","datetime","method",
                   "url","protocol","status","size","user-agent",
-                  "domain","port","smt-domain"])
+                  "domain","port","smt-domain","is-user-action","query-content","view-content","download-content"])
 counter_junk = 0
 counter_libproxy = 0
 counter_ibproxy = 0
+counter_row = 0
 
 def correct_time_token(row):
     new_row = row[:3]
@@ -50,26 +51,29 @@ def split_method_and_url(row):
 def attach_decomposed_url_info(row):
     url = row[5]
     domain_port = url[8:].split('/')[0]
-    row.append(domain_port.split(':')[0]) #domain
+    domain = domain_port.split(':')[0]
+    row.append(domain) #domain
     row.append(domain_port.split(':')[1]) #port
-    row.append(domain_mapping.translate(row[11]) ) #semantic domain
-    
+    row.append(domain_mapping.translate(domain) ) #semantic domain
+# determine if it's junk and maintains count for junks
 def is_junk(url):
+    global counter_libproxy, counter_ibproxy,counter_junk
     for kwd in ['.gif','.min.js','.js', '.ttf', '.woff', '.eot']:
         if kwd in url :
             counter_junk += 1 
             return True
     if "//libproxy.smu.edu.sg:" in url:
-        counter_libproxy+= 1
+        counter_libproxy += 1
         return True
     if "//ibproxy.smu.edu.sg:" in url:
-        counter_ibproxy+= 1
+        counter_ibproxy += 1
         return True
     return False
 with open(input_file_path, 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=' ')
     conversion = set('[]')
     for row in reader:
+        counter_row += 1
         # splitting and joining fields
         row2 = [''.join('' if c in conversion else c for c in entry) for entry in row]
         row3 = correct_time_token(row2)
@@ -77,7 +81,7 @@ with open(input_file_path, 'rb') as csvfile:
         attach_decomposed_url_info(row4)
         if remove_junk and not is_junk(row4[5]):
             out_csv.writerow(row4)
-
+print 'rows: %s\n junks: %s\n libproxy: %s\n ibproxy: %s'%(counter_row, counter_junk,counter_libproxy,counter_ibproxy)
 
 
 

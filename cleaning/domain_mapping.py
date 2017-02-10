@@ -1,6 +1,6 @@
 '''
 Created on Feb 9, 2017
-
+Purpose: to get semantic domain for each url
 @author: Alex
 '''
 import re
@@ -20,5 +20,6 @@ def translate(domain):
         for i,r in enumerate(domain_map[k]):
             if re.match(r, domain):
                 return k
+    
     return ""
         
