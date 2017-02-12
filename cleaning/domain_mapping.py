@@ -8,7 +8,8 @@ domain_map = {"lawnet": ["*.lawnet.sg"],
               "westlaw":["*.westlaw.co.uk","*.westlaw.com","*.westlaw.co"],
               "Ebsco ebooks":["*.ebscohost.com"],
               "MyiLibrary":["*.myilibrary.com"],
-              "ebrary":["*.ebrary.com"]}
+              "ebrary":["*.ebrary.com"],
+              "":""}
 def _domain_map_regex_generate(t):
     r_str = "^{}$".format(t).replace(".","\.").replace("*",".*")
     return re.compile(r_str)
