@@ -9,7 +9,7 @@ This module transforms the given clf file to csv with, and splits out domain
 import os
 import csv,time
 import domain_mapping
-import query_rules
+import query_rules, url_filter
 from datetime import datetime
 
 remove_junk = True
@@ -17,12 +17,12 @@ remove_junk = True
 #setting the file path
 working_dir = 'F:\\Y4T2\\AP\\Alma User & Jan16 EzProxy (for Swapna) 9Nov16\\' +\
               'Alma User & Jan16 EzProxy (for Swapna) 9Nov16\\'
-input_fn = 'sample2.txt'
+input_fn = 'May2016removedlines(anony).txt'
 
 
 input_file_path = os.path.join(working_dir, input_fn)
 
-output_file = os.path.join(working_dir, "cleaned_"+input_fn+"2.csv")
+output_file = os.path.join(working_dir, "cleaned_"+input_fn+"May.csv")
 
 #open a writer and pending for the write, the target is location is the first variable in open()
 
@@ -44,7 +44,8 @@ def correct_time_token(row):
     time_obj = datetime.strptime(datetime_str, "[%d/%b/%Y:%H:%M:%S +0800]")
     dt = time_obj.timetuple()
     dow = time_obj.isocalendar()[1]
-    return datetime_str, time.mktime(dt), dt, dow 
+    time_str = time_obj.strftime('%d/%m/%y %H:00:00')
+    return time_str, time.mktime(dt), dt, dow
 
 def decompose_url(row):
     method_url = row[5]
@@ -64,10 +65,9 @@ def encode_comma_in_ua(row):
 # determine if it's junk and maintains count for junks
 def is_junk(url):
     global counter_libproxy, counter_ibproxy,counter_junk
-    for kwd in ['.gif','.min.js','.js', '.ttf', '.woff', '.eot']:
-        if kwd in url :
-            counter_junk += 1 
-            return True
+    if url_filter.is_rubbish(url):
+        counter_junk
+        return True
     if "//libproxy.smu.edu.sg:" in url:
         counter_libproxy += 1
         return True
@@ -87,9 +87,10 @@ with open(input_file_path, 'rb') as csvfile:
             query_tp = query_rules.extract_user_content(url, domain)
             is_ua = 1 if any(x is not None for x in query_tp) else 0
             new_query_tp = map(lambda q: "" if q is None else q, query_tp)
+            download_content = "<size>" if row[7]>20000 and new_query_tp[2] else new_query_tp[2]
             '''
                   "uip","rmtname","uid",
-                  "datetime","timestamp","hour","day","dow","week","month""method",
+                  "datetime","timestamp","hour","day","dow","week","month","method",
                   "url","protocol","status","size","user-agent",
                   "domain","port","smt-domain","is-user-action",
                   "query-content","view-content","download-content"

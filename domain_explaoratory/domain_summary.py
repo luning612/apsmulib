@@ -5,7 +5,7 @@ Created on Feb 11, 2017
 '''
 
 import csv,urllib,traceback, os
-import re, time
+import re, time, cleaning.url_filter as url_filter
 from datetime import datetime
 traceback.print_exc()
 working_dir = 'L:\\Ezproxy (Hashed) 2016'
@@ -17,11 +17,7 @@ line_counter = 0
 read_counter = 0
 #read_max = 1000000
 def is_junk(url):
-    global counter_libproxy, counter_ibproxy,counter_junk
-    for kwd in ['.gif','.min.js','.js', '.ttf', '.woff', '.eot']:
-        if kwd in url :
-            return True
-    return False
+    return url_filter.is_rubbish(url)
 
 input_file = os.path.join(working_dir, input_file_name)
 with open(input_file, 'rb') as csvfile:

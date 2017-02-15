@@ -1,33 +1,21 @@
 '''
-Created on Feb 8, 2017
+Created on Jan 18, 2017
 
 @author: Alex
 '''
-import os
-import csv
-
+import csv,traceback,urllib,re,urlparse
+import sys, cleaning.url_filter as url_filter
 
 working_dir = 'F:\\Y4T2\\AP\\Alma User & Jan16 EzProxy (for Swapna) 9Nov16\\Alma User & Jan16 EzProxy (for Swapna) 9Nov16\\'
-input_file_name = 'cleaned_sample2.txt.csv'
-
-
-input_file_path = os.path.join(working_dir, input_file_name)
-
-output_file = os.path.join(working_dir, "cleaned_"+input_file_name+".csv")
-
-#open a writer and pending for the write, the target is location is the first variable in open()
-out_csv = csv.writer(open(output_file, 'wb'), quoting=csv.QUOTE_ALL)
-original_header = ["uip","rmtname","uid","datetime","method","url","version","status","size","user-agent"]
-out_csv.writerow(original_header+ ["domain","protocol","port","type","keyword"])
-
+input_file_name = 'May2016removedlines(anony).txt'
+target_domain =  "westlaw1"
 patterns = []
-
 
 def correct_empty_string(alist):
     if len(alist)==1 and len(alist[0])==0: return []
     else: return alist
 def in_domain_list(domain):
-    return domain == target_domain
+    return domain in ["westlaw.co.uk", "westlaw.com","westlaw.co"]
 def tokenize(url_info):
 #     print ("url_info  "+url_info)
     parsed = urlparse.urlparse(url)
@@ -80,14 +68,6 @@ def correct_time_token(row):
     new_row.append(row[3]+' '+row[4])
     new_row.extend(row[5:9])
     return new_row
-def is_rubbish_url(url):
-    if '.gif' in url:
-        return True
-    if '.ico' in url:
-        return True
-    if '.js' in url:
-        return True
-    return False
 input_file = working_dir+ input_file_name
 with open(input_file, 'rb') as csvfile:
     dialect = csv.Sniffer().sniff(csvfile.read(4096),' ')
@@ -104,7 +84,7 @@ with open(input_file, 'rb') as csvfile:
             domain_w_port = domain_full.split('.', 1)[1]
             domain = domain_w_port.split(':', 1)[0]
             if not in_domain_list(domain): continue
-            if is_rubbish_url(url):continue
+            if url_filter.is_rubbish(url): continue
             post_pattern(url)
         except:
             print traceback.print_exc()

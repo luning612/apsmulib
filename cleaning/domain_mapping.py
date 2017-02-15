@@ -9,7 +9,13 @@ domain_map = {"lawnet": ["*.lawnet.sg"],
               "Ebsco ebooks":["*.ebscohost.com"],
               "MyiLibrary":["*.myilibrary.com"],
               "ebrary":["*.ebrary.com"],
-              "":""}
+              "SAGE":["*.sagepub.com"],
+              "MarketLine Advantage":["*.marketline.com"],
+              "ProQuest":["*.eblib.com.au"],
+              "Lexis":["*.lexis.com"],
+              "SpringerLINK":["*.springer.com"],
+              "Wiley":["*.wiley.com"],
+              "OECD iLibrary":["*.oecd.org","*.sourceoecd.org","*.oecdilibrary.org"]}
 def _domain_map_regex_generate(t):
     r_str = "^{}$".format(t).replace(".","\.").replace("*",".*")
     return re.compile(r_str)
